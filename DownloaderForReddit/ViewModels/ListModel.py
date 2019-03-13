@@ -142,7 +142,7 @@ class ListModel(QAbstractListModel):
         tooltip_dict = {
             'name': 'Name: %s' % reddit_object.name,
             'enable_download': 'Download Enabled: %s' % reddit_object.enable_download,
-            'do_not_edit': 'Do Not Edit: %s' % reddit_object.do_not_edit,
+            'do_not_edit': 'Locked: %s' % reddit_object.lock,
             'last_download_date': 'Last Download Date: %s' % (self.format_date(reddit_object.date_limit) if
                                                              reddit_object.date_limit > 1136073600 else
                                                              'No Last Download Date'),
@@ -158,7 +158,7 @@ class ListModel(QAbstractListModel):
             'saved_content_count': 'Saved Content Count: %s' % len(reddit_object.saved_content),
             'saved_submission_count': 'Saved Submission Count: %s' % len(reddit_object.saved_submissions),
             'total_download_count': 'Total Downloads: %s' % reddit_object.number_of_downloads,
-            'added_on_date': 'Date Added: %s' % self.format_date(reddit_object.user_added)
+            'added_on_date': 'Date Added: %s' % self.format_date(reddit_object.date_added)
         }
         tooltip = ''
         for key, value in tooltip_dict.items():

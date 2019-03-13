@@ -82,9 +82,9 @@ class JSONRedditObjectEncoder(json.JSONEncoder):
                 'custom_date_limit_epoch': o.custom_date_limit,
                 'custom_date_limit_readable': epoch_to_str(o.custom_date_limit) if o.custom_date_limit is not None else
                 None,
-                'added_on_epoch': o.user_added,
-                'added_on_readable': epoch_to_str(o.user_added),
-                'do_not_edit': o.do_not_edit,
+                'added_on_epoch': o.date_added,
+                'added_on_readable': epoch_to_str(o.date_added),
+                'lock': o.lock,
                 'save_undownloaded_content': o.save_undownloaded_content,
                 'download_enabled': o.enable_download
             }

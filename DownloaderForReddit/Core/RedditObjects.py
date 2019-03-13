@@ -31,8 +31,8 @@ from ..Logging import LogUtils
 
 class RedditObject:
 
-    def __init__(self, version, name, save_path, post_limit, avoid_duplicates, download_videos, download_images,
-                 nsfw_filter, name_downloads_by, user_added):
+    def __init__(self, _id, version, name, save_path, post_limit, avoid_duplicates, download_videos, download_images,
+                 download_self_posts, download_comments, nsfw_filter, date_added):
         """
         Class that holds the name and list of submissions for Reddit objects.  Also contains an empty content list that
         will be filled with Content objects that contain links for download.
@@ -45,6 +45,7 @@ class RedditObject:
         the user/sub had content.  If this variable is anything but 'None' it will be considered. If a user/sub setting
         is set to not restrict download date, it becomes 1.
         """
+        self.id = _id
         self.version = version
         self.name = name
         self.subreddit_save_method = None
@@ -53,10 +54,11 @@ class RedditObject:
         self.avoid_duplicates = avoid_duplicates
         self.download_videos = download_videos
         self.download_images = download_images
+        self.download_self_posts = download_self_posts
+        self.download_comments = download_comments
         self.nsfw_filter = nsfw_filter
-        self.name_downloads_by = name_downloads_by
-        self.user_added = user_added
-        self.do_not_edit = False
+        self.date_added = date_added
+        self.lock = False  # if True, individual settings will not be overwritten when changing global app settings
         self.new_submissions = []  # Will be erased at end of download
         self.saved_submissions = []
         self.previous_downloads = []
@@ -90,8 +92,8 @@ class RedditObject:
                 'download_videos': self.download_videos,
                 'download_images': self.download_images,
                 'nsfw_filter': self.nsfw_filter,
-                'added_on': self.user_added,
-                'do_not_edit': self.do_not_edit,
+                'added_on': self.date_added,
+                'do_not_edit': self.lock,
                 'new_submission_count': len(self.new_submissions) if self.new_submissions is not None else None,
                 'saved_submission_count': len(self.saved_submissions),
                 'previous_download_count': len(self.previous_downloads),
@@ -134,7 +136,7 @@ class RedditObject:
             self.date_limit = last_download_time
         elif self.date_limit is None:
             self.date_limit = last_download_time
-        if not self.do_not_edit and None is not self.custom_date_limit < last_download_time:
+        if not self.lock and None is not self.custom_date_limit < last_download_time:
             self.custom_date_limit = None
 
     def check_save_directory(self):
@@ -156,13 +158,13 @@ class RedditObject:
 
 class User(RedditObject):
 
-    def __init__(self, version, name, save_path, post_limit, avoid_duplicates, download_videos,
-                 download_images, nsfw_filter, name_downloads_by, user_added):
+    def __init__(self, _id, version, name, save_path, post_limit, avoid_duplicates, download_videos,
+                 download_images, download_self_posts, download_comments, nsfw_filter, date_added):
         """
         A subclass of the RedditObject class.  This class is used exclusively to hold users and their information
         """
-        super().__init__(version, name, save_path, post_limit, avoid_duplicates, download_videos, download_images,
-                         nsfw_filter, name_downloads_by, user_added)
+        super().__init__(_id, version, name, save_path, post_limit, avoid_duplicates, download_videos, download_images,
+                         download_self_posts, download_comments, nsfw_filter, date_added)
         self.subreddit_save_method = None
         self.object_type = 'USER'
 
@@ -173,13 +175,13 @@ class User(RedditObject):
 
 class Subreddit(RedditObject):
 
-    def __init__(self, version, name, save_path, post_limit, avoid_duplicates, download_videos, download_images,
-                 nsfw_filter, subreddit_save_method, name_downloads_by, user_added):
+    def __init__(self, _id, version, name, save_path, post_limit, avoid_duplicates, download_videos, download_images,
+                 download_self_posts, download_comments, nsfw_filter, subreddit_save_method, date_added):
         """
         A subclass of the RedditObject class. This class is used exclusively to hold subreddits and their information.
         Also contains an extra method not used for users to update the subreddit_save_by_method
         """
-        super().__init__(version, name, save_path, post_limit, avoid_duplicates, download_videos, download_images,
-                         nsfw_filter, name_downloads_by, user_added)
+        super().__init__(_id, version, name, save_path, post_limit, avoid_duplicates, download_videos, download_images,
+                         download_self_posts, download_comments, nsfw_filter, date_added)
         self.subreddit_save_method = subreddit_save_method
         self.object_type = 'SUBREDDIT'

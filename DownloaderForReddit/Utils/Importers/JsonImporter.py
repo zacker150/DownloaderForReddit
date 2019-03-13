@@ -70,7 +70,7 @@ def make_reddit_object(element):
         date_limit = int(element['date_limit_epoch'])
         custom_date_limit = element['custom_date_limit_epoch']
         added_on = element['added_on_epoch']
-        do_not_edit = element['do_not_edit']
+        lock = element['lock']
         save_undownloaded_content = element['save_undownloaded_content']
         download_enabled = element['download_enabled']
 
@@ -82,7 +82,7 @@ def make_reddit_object(element):
                                       download_images, nsfw_filter, subreddit_save_method, name_downloads_by, added_on)
         reddit_object.date_limit = date_limit
         reddit_object.custom_date_limit = int(custom_date_limit) if custom_date_limit is not None else None
-        reddit_object.do_not_edit = do_not_edit
+        reddit_object.lock = lock
         reddit_object.save_undownloaded_content = save_undownloaded_content
         reddit_object.enable_download = download_enabled
         return reddit_object
