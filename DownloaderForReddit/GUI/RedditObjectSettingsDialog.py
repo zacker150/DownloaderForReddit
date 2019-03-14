@@ -32,7 +32,7 @@ from ..GUI_Resources.RedditObjectSettingsDialog_auto import Ui_RedditObjectSetti
 from ..Core.Messages import Message
 from ..Utils.AlphanumKey import ALPHANUM_KEY
 from ..ViewModels.RedditObjectItemDisplayModel import RedditObjectItemDisplayModel
-from ..Core.RedditObjects import *
+from DownloaderForReddit.RedditObjects.RedditObjects import *
 from ..CustomWidgets.CustomListWidgetItem import CustomListItem
 
 

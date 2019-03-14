@@ -27,7 +27,7 @@ import prawcore
 from PyQt5.QtCore import QObject, pyqtSignal
 import logging
 
-from ..Core.Post import Post
+from DownloaderForReddit.RedditObjects.Post import Post
 from ..version import __version__
 
 

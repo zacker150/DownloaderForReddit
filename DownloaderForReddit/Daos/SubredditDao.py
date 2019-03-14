@@ -1,7 +1,7 @@
 from sqlite3 import IntegrityError
 import time
 
-from ..Core.RedditObjects import Subreddit
+from DownloaderForReddit.RedditObjects.RedditObjects import Subreddit
 from ..Daos.BaseDao import BaseDao
 
 

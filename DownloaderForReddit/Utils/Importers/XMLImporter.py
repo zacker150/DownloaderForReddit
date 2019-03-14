@@ -25,7 +25,7 @@ along with Downloader for Reddit.  If not, see <http://www.gnu.org/licenses/>.
 import xml.etree.cElementTree as et
 import logging
 
-from ...Core.RedditObjects import User, Subreddit
+from DownloaderForReddit.RedditObjects.RedditObjects import User, Subreddit
 
 
 logger = logging.getLogger(__name__)

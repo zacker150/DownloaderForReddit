@@ -36,7 +36,7 @@ from ..GUI.FailedDownloadsDialog import FailedDownloadsDialog
 from ..Core.Messages import Message, UnfinishedDownloadsWarning
 from ..GUI.RedditObjectSettingsDialog import RedditObjectSettingsDialog
 from ..Core.DownloadRunner import DownloadRunner
-from ..Core.RedditObjects import User, Subreddit
+from DownloaderForReddit.RedditObjects.RedditObjects import User, Subreddit
 from ..GUI.UnfinishedDownloadsDialog import UnfinishedDownloadsDialog
 from ..GUI.UpdateDialogGUI import UpdateDialog
 from ..Core.UpdaterChecker import UpdateChecker

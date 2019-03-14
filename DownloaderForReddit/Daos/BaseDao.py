@@ -1,5 +1,6 @@
 import logging
 
+
 class BaseDao:
 
     def __init__(self, connection):

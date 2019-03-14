@@ -23,10 +23,10 @@ along with Downloader for Reddit.  If not, see <http://www.gnu.org/licenses/>.
 """
 
 
-from ..Extractors.BaseExtractor import *
-from ..Utils import Injector
-from ..Utils import SystemUtil
-from ..Logging import LogUtils
+from DownloaderForReddit.Extractors.BaseExtractor import *
+from DownloaderForReddit.Utils import Injector
+from DownloaderForReddit.Utils import SystemUtil
+from DownloaderForReddit.Logging import LogUtils
 
 
 class RedditObject:

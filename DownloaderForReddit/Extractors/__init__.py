@@ -25,7 +25,7 @@ along with Downloader for Reddit.  If not, see <http://www.gnu.org/licenses/>.
 
 import sys
 
-from ..Core.Post import Post
+from DownloaderForReddit.RedditObjects.Post import Post
 
 # Import each extractor class in the Extractors package so that BaseExtractor.__subclasses__() will pick up the
 # extractor class to be used in the Extractor.assign_extractor method.

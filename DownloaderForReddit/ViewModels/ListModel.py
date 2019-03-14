@@ -30,7 +30,7 @@ import datetime
 import logging
 
 from ..Utils import Injector
-from ..Core.RedditObjects import RedditObject
+from DownloaderForReddit.RedditObjects.RedditObjects import RedditObject
 
 
 class ListModel(QAbstractListModel):

@@ -25,8 +25,8 @@ along with Downloader for Reddit.  If not, see <http://www.gnu.org/licenses/>.
 import json
 import logging
 
-from ...Core.Post import Post
-from ...Core.RedditObjects import RedditObject
+from DownloaderForReddit.RedditObjects.Post import Post
+from DownloaderForReddit.RedditObjects.RedditObjects import RedditObject
 from ...Utils.SystemUtil import epoch_to_str
 
 

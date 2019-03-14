@@ -22,9 +22,9 @@ You should have received a copy of the GNU General Public License
 along with Downloader for Reddit.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-from ..Core.RedditObjects import User, Subreddit
+from DownloaderForReddit.RedditObjects.RedditObjects import User, Subreddit
 from ..Utils import Injector
-from ..Core.Post import Post
+from DownloaderForReddit.RedditObjects.Post import Post
 from ..version import __version__
 
 
