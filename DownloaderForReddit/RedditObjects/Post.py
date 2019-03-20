@@ -24,7 +24,7 @@ along with Downloader for Reddit.  If not, see <http://www.gnu.org/licenses/>.
 
 from urllib.parse import urlparse
 
-from DownloaderForReddit.Utils.SystemUtil import epoch_to_str
+from ..Utils.SystemUtil import epoch_to_str
 
 
 class Post:
@@ -40,10 +40,12 @@ class Post:
         score: The karma score that the post had at the time of download.
         date_added: Value used by the database to keep a record of the date and time that post data was entered into
                     the database.  Should only be set by the post dao.
+        comments: A list of the comments left on this post.
     """
 
-    def __init__(self, _id, title, author_id, author, subreddit_id, subreddit, created, url=None, status='good',
-                 domain=None, score=None):
+    def __init__(self, title=None, _id=None, author_id=None, author=None, subreddit_id=None, subreddit=None,
+                 created=None, url=None, self_post=False, status='good', domain=None, score=None, text=None,
+                 date_added=None):
         """
         Initializes the post object with necessary data.
         :param _id: The id of the post as assigned by the database.
@@ -80,11 +82,14 @@ class Post:
         self.subreddit = subreddit
         self.created = created
         self.url = url
-
-        self.text = None
+        self.text = text
         self.score = score
-        self.date_added = None
+        self.date_added = date_added
+        self.comments = []
+        self.self_post = self_post
         self.domain = domain if domain is not None else self.get_domain()
+
+        self.links = []  # holds a list of Urls that are included in the post if it is a self post
 
         self.status = status
         self.save_status = 'Not Saved'
@@ -97,8 +102,11 @@ class Post:
         return epoch_to_str(self.created)
 
     def get_domain(self):
-        parsed_url = urlparse(self.url)
-        self.domain = '{url.netloc}'.format(url=parsed_url)
+        if self.url is not None:
+            parsed_url = urlparse(self.url)
+            self.domain = '{url.netloc}'.format(url=parsed_url)
+        else:
+            return None
 
     def format_failed_text(self):
         return 'Failed to download content:\nUser: %s  Subreddit: %s  Title: %s\nUrl:  %s\n%s\nSave Status: %s\n' % \
