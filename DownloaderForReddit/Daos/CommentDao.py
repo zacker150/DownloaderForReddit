@@ -95,6 +95,7 @@ class CommentDao(BaseDao):
                 self.logger.error("Failed to update comment to database", extra={'author': comment.user,
                                                                                  'subreddit': comment.subreddit,
                                                                                  'post_date': comment.created})
+                return False
 
     def delete_comment(self, comment):
         c = self.get_cursor()
@@ -106,3 +107,4 @@ class CommentDao(BaseDao):
             self.logger.error("Failed to delete comment", extra={'author': comment.author,
                                                                   'subreddit': comment.subreddit,
                                                                   'post_date': comment.created})
+            return False
