@@ -69,7 +69,7 @@ class DownloadRunner(QObject):
         self.subreddit_list = [sub for sub in subreddit_list if sub.enable_download] if \
             subreddit_list is not None else None
         self.queue = queue
-        self.validated_objects = Queue()
+        self.validated_objects = Queue()  # make new queue for validated objects to be picked up by extractor thread
         self.validated_subreddits = []
         self.failed_downloads = []
         self.downloaded_objects = {}
