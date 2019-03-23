@@ -46,6 +46,8 @@ class PostFilter:
         Test the post to see if it is greater or less than the global settings post score limit.
         :param post: A praw submission item to be tested.
         :return: True if the posts score limit is meets the global settings criteria, False if it does not.
+        :type post: praw.Submission
+        :rtype: bool
         """
         if self.settings_manager.restrict_by_score:
             if self.settings_manager.score_limit_operator == 'GREATER':
@@ -61,6 +63,9 @@ class PostFilter:
         :param post: A praw submission item to be tested.
         :param reddit_object: The reddit object who's nsfw filter is to be tested against.
         :return: True if the meets the reddit objects nsfw settings criteria, False if it does not.
+        :type post: praw.Submission
+        :type reddit_object: RedditObject
+        :rtype: bool
         """
         if reddit_object.nsfw_filter == 'EXCLUDE':
             return not post.over_18
@@ -75,6 +80,9 @@ class PostFilter:
         :param post: A praw submission item to be tested.
         :param reddit_object: A reddit object (User or Subreddit) which holds the date limit criteria to be tested.
         :return: True if the post meets the reddit objects date criteria, False if it does not.
+        :type post: praw.Submission
+        :type reddit_object: RedditObject
+        :rtype: bool
         """
         date_limit = self.get_date_limit(reddit_object)
         return post.created > date_limit
@@ -84,8 +92,28 @@ class PostFilter:
         """
         Returns the reddit objects date_limit or custom_date_limit attribute depending on the what the custom date
         limit is.
+        :type reddit_object: RedditObject
+        :rtype: int
         """
         if reddit_object.custom_date_limit is None:
             return reddit_object.date_limit
         else:
             return reddit_object.custom_date_limit
+
+    @staticmethod
+    def filter_self_posts(post, reddit_object):
+        """
+        Tests a post to see if it is a self post and whether or not the supplied reddit objects settings dictate it
+        should be downloaded if it is.  Will return True if the post is not a self post or if the post object does not
+        have the 'is_self' attribute.
+        :param post: The post that is to be tested for download eligibility based on if it is a self post.
+        :param reddit_object: The RedditObject that has the setting for whether or not self posts are to be downloaded.
+        :return: True if the post should be downloaded, False if it should not.
+        :type post: praw.Submission
+        :type reddit_object: RedditObject
+        :rtype: bool
+        """
+        try:
+            return reddit_object.download_self_posts or not post.is_self
+        except AttributeError:  # AttributeError here most likely means that post does not have 'is_self' attribute
+            return True
