@@ -35,6 +35,7 @@ from .VidbleExtractor import VidbleExtractor
 from .RedditUploadsExtractor import RedditUploadsExtractor
 from .RedditVideoExtractor import RedditVideoExtractor
 from .GenericVideoExtractor import GenericVideoExtractor
+from .SelfPostExtractor import SelfPostExtractor
 
 
 sys.modules['Post'] = Post

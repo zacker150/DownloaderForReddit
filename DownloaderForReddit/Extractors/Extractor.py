@@ -28,6 +28,7 @@ import time
 
 from ..Extractors.BaseExtractor import BaseExtractor
 from ..Extractors.DirectExtractor import DirectExtractor
+from ..Extractors.SelfPostExtractor import SelfPostExtractor
 from ..Utils import Injector
 from ..Core import Const
 from ..Utils.RedditUtils import convert_praw_post
@@ -136,6 +137,11 @@ class Extractor:
         :return: The extractor that is to be used to extract content from the supplied post.
         :rtype: BaseExtractor
         """
+        try:
+            if post.is_self:
+                return SelfPostExtractor  # check for self post first
+        except AttributeError:
+            pass
         for extractor in BaseExtractor.__subclasses__():
             key = extractor.get_url_key()
             if key is not None and any(x in post.url.lower() for x in key):
