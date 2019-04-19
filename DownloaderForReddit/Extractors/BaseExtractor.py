@@ -53,6 +53,7 @@ class BaseExtractor:
         """
         self.logger = logging.getLogger('DownloaderForReddit.%s' % __name__)
         self.settings_manager = Injector.get_settings_manager()
+        self.reddit_object = reddit_object
         self.url = post.url
         self.domain = post.domain
         self.user = post.author
@@ -173,25 +174,27 @@ class BaseExtractor:
         """
         return self.post_title if self.name_downloads_by == 'Post Title' else media_id
 
-    def make_content(self, url, file_name, extension, count=None):
+    def make_content(self, url, text, file_name, extension, count=None):
         """
         Takes content elements that are extracted and creates a Content object with the extracted parts and the global
         extractor items, then sends the new Content object to the extracted content list.
-        :param url: The url of the content item.
+        :param url: The url of a linked 'content' portion of a post that is to be turned into a Content item.
+        :param text: The text of post if the post is a self-post.
         :param file_name: The file name of the content item, either the post name or the album id depending on user
                           settings.
         :param count: The number in an album sequence that the supplied url belongs.  Used to number the file.
         :param extension: The extension of the supplied url and the url used for the downloaded file.
         :return: The content object that was created.
         :type url: str
+        :type text: str
         :type file_name: str
         :type extension: str
         :type count: int
         :rtype: Content
         """
         count = ' %s' % count if count else ''
-        x = Content(url, self.user, self.post_title, self.subreddit, file_name, count, '.' + extension, self.save_path,
-                    self.subreddit_save_method, self.creation_date, self.content_display_only)
+        x = Content(url, text, self.user, self.post_title, self.subreddit, file_name, count, '.' + extension,
+                    self.save_path, self.subreddit_save_method, self.creation_date)
         self.extracted_content.append(x)
         return x
 
@@ -216,7 +219,8 @@ class BaseExtractor:
                        encountered.
         """
         message_text = ': %s' % message if message else ''
-        failed_post = Post(self.url, self.user_name, self.post_title, self.subreddit_name, self.creation_date,
+        failed_post = Post(url=self.url, author_id=self.reddit_object.id, author=self.reddit_object.name,
+                           title=self.post_title, subreddit=self.subreddit_name, created=self.creation_date,
                            status=message if message_text else 'Failed')
         extra = {'extractor_data': self.get_log_data()}
         if save and self.settings_manager.save_failed_extracts:

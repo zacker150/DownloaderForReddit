@@ -32,6 +32,7 @@ import logging
 from ..Utils import Injector, RedditUtils, VideoMerger
 from ..Core.PostFilter import PostFilter
 from ..Extractors.Extractor import Extractor
+from ..RedditObjects.Post import Post
 
 
 class DownloadRunner(QObject):
@@ -410,6 +411,7 @@ class ExtractionRunner(QObject):
         """
         super().__init__()
         self.logger = logging.getLogger('DownloaderForReddit.%s' % __name__)
+        self.settings_manager = Injector.get_settings_manager()
         self.queue = queue
         self.validated_objects = valid_objects
         self.post_queue = post_queue
@@ -453,6 +455,9 @@ class ExtractionRunner(QObject):
         """
         extractor = Extractor(reddit_object)
         extractor.run()
+        if self.settings_manager.perpetual_save:
+            pass
+            # TODO: save all reddit object changes to database here
 
     def finish(self):
         """

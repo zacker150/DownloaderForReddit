@@ -60,8 +60,9 @@ class RedditObject:
         self.date_added = date_added
         self.lock = False  # if True, individual settings will not be overwritten when changing global app settings
         self.new_submissions = []  # Will be erased at end of download
+        self.new_posts = []  # A list of Post objects that have been accumulated and will be added to the database
         self.saved_submissions = []
-        self.previous_downloads = []
+        self.previous_downloads = []  # contains previously downloaded urls
         self.date_limit = 86400
         self.custom_date_limit = None
         self.content = []  # Will be erased at end of download (QRunnable objects cannot be pickled)

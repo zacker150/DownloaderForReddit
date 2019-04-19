@@ -45,7 +45,7 @@ class Post:
 
     def __init__(self, title=None, _id=None, author_id=None, author=None, subreddit_id=None, subreddit=None,
                  created=None, url=None, self_post=False, status='good', domain=None, score=None, text=None,
-                 date_added=None):
+                 html_text=None, date_added=None, nsfw=False, reddit_id=None):
         """
         Initializes the post object with necessary data.
         :param _id: The id of the post as assigned by the database.
@@ -53,16 +53,23 @@ class Post:
         :param author_id: The id of the author as stored in the database if the author is in fact stored in the
                           database, otherwise None
         :param author: The user who made the post to reddit.
-        :param subreddit_id: The id of the subreddit as stored in the databse if the subreddit is in fact stored in the
+        :param subreddit_id: The id of the subreddit as stored in the database if the subreddit is in fact stored in the
                              database, otherwise None
         :param subreddit: The subreddit in which the post was made.
         :param created: The epoch time that the post was made.
         :param url: The url that the post links to.
+        :param self_post: Indicates whether or not the post is a self post.
         :param status: The status of the post.  This is used to hold status information about the post, including the
                        reason the post failed to download if necessary.  Defaults to "good".
         :param domain: The domain name of the site hosting the post.  This can be supplied by reddit but defaults to
                        None.  If the default value is taken, this class will determine the domain name based on the
                        supplied url.
+        :param score: The karma score that the post had on reddit at the time of extraction.
+        :param text: If the post was a self post, this is the text that the post contained.
+        :param text: If the post was s self post, this is the text that the post contained, but in its html form.  This
+                     text should be used to retain formatting for display as well as to easily extract links that are
+                     embedded in the post text.
+        :param date_added: The date that the post was posted to reddit.
         :type _id: int
         :type title: str
         :type author_id: int
@@ -71,8 +78,13 @@ class Post:
         :type subreddit: str
         :type created: long
         :type url: str
+        :type self_post: bool
         :type status: str
         :type domain: str
+        :type score: int
+        :type text: str
+        :type html_text: str
+        :type date_added: int
         """
         self.id = _id
         self.title = title
@@ -83,8 +95,11 @@ class Post:
         self.created = created
         self.url = url
         self.text = text
+        self.html_text = html_text
         self.score = score
         self.date_added = date_added
+        self.nsfw = nsfw
+        self.reddit_id = reddit_id
         self.comments = []
         self.self_post = self_post
         self.domain = domain if domain is not None else self.get_domain()

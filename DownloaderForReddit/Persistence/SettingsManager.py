@@ -38,6 +38,7 @@ class SettingsManager:
         self.logger = logging.getLogger('DownloaderForReddit.%s' % __name__)
         self.settings = QSettings('SomeGuySoftware', 'RedditDownloader')
         self.load_settings()
+        # TODO: move load settings to init and add documentation for each attribute
         if self.check_first_run():
             ObjectUpdater.check_settings_manager(self)
 
@@ -87,6 +88,9 @@ class SettingsManager:
 
         self.nsfw_filter = self.settings.value('nsfw_filter', 'INCLUDE', type=str)
 
+        self.download_self_posts = self.settings.value('download_self_posts', False, type=bool)
+        self.download_comments = self.settings.value('download_comments', False, type=bool)
+
         self.download_reddit_hosted_videos = self.settings.value('download_reddit_hosted_videos', True, type=bool)
 
         self.save_subreddits_by = self.settings.value('save_subreddits_by', 'Subreddit Name', type=str)
@@ -98,6 +102,8 @@ class SettingsManager:
         self.save_undownloaded_content = self.settings.value("save_undownloaded_content", True, type=bool)
         self.save_failed_extracts = self.settings.value('save_failed_extracts', True, type=bool)
         self.set_file_modified_date = self.settings.value('set_file_modified_date', False, type=bool)
+
+        self.perpetual_save = self.settings.value('perpetual_save', False, type=bool)
         # endregion
 
         # region Display Settings
@@ -221,6 +227,8 @@ class SettingsManager:
         self.settings.setValue("download_images", self.download_images)
         self.settings.setValue("avoid_duplicates", self.avoid_duplicates)
         self.settings.setValue('nsfw_filter', self.nsfw_filter)
+        self.settings.setValue('download_self_posts', self.download_self_posts)
+        self.settings.setValue('download_comments', self.download_comments)
         self.settings.setValue('download_reddit_hosted_videos', self.download_reddit_hosted_videos)
         self.settings.setValue("save_subreddits_by", self.save_subreddits_by)
         self.settings.setValue("name_downloads_by", self.name_downloads_by)
@@ -229,6 +237,7 @@ class SettingsManager:
         self.settings.setValue("save_undownloaded_content", self.save_undownloaded_content)
         self.settings.setValue('save_failed_extracts', self.save_failed_extracts)
         self.settings.setValue('set_file_modified_date', self.set_file_modified_date)
+        self.settings.setValue('perpetual_save', self.perpetual_save)
 
     def save_display_settings(self):
         self.settings.setValue('tooltip_name', self.tooltip_display_dict['name'])

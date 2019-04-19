@@ -33,8 +33,8 @@ from ..Logging import LogUtils
 
 class Content(QRunnable):
 
-    def __init__(self, url, user, post_title, subreddit, submission_id, number_in_seq, file_ext, save_path,
-                 subreddit_save_method, date_created, display_only):
+    def __init__(self, url, text, user, post_title, subreddit, submission_id, number_in_seq, file_ext, save_path,
+                 subreddit_save_method, date_created):
         """
         Class that holds information about a single file extracted from a reddit submission that is to be downloaded as
         content.  Also holes the method to download the file.
@@ -51,6 +51,7 @@ class Content(QRunnable):
         self.logger = logging.getLogger('DownloaderForReddit.%s' % __name__)
         self.settings_manager = Injector.get_settings_manager()
         self.url = url
+        self.text = text
         self.user = user
         self.post_title = post_title
         self.subreddit = subreddit
@@ -60,7 +61,6 @@ class Content(QRunnable):
         self.save_path = '%s%s' % (save_path, '/' if not save_path.endswith('/') else '')
         self.subreddit_save_method = subreddit_save_method
         self.date_created = date_created
-        self.display_only = display_only
         self.output = ''
         self.setAutoDelete(False)
         self.downloaded = False
@@ -68,57 +68,70 @@ class Content(QRunnable):
 
         self.queue = None
 
-        if not self.display_only:
-            if self.subreddit_save_method is None:
-                self.filename = '%s%s%s%s' % (self.save_path, self.clean_filename(self.submission_id),
-                                              self.number_in_seq, self.file_ext)
-                self.check_path = self.save_path
+        if self.subreddit_save_method is None:
+            self.filename = '%s%s%s%s' % (self.save_path, self.clean_filename(self.submission_id),
+                                          self.number_in_seq, self.file_ext)
+            self.check_path = self.save_path
 
-            elif self.subreddit_save_method == 'User Name':
-                self.filename = '%s%s/%s%s%s' % (self.save_path, self.user, self.clean_filename(self.submission_id),
-                                                 self.number_in_seq, self.file_ext)
-                self.check_path = '%s%s/' % (self.save_path, self.user)
+        elif self.subreddit_save_method == 'User Name':
+            self.filename = '%s%s/%s%s%s' % (self.save_path, self.user, self.clean_filename(self.submission_id),
+                                             self.number_in_seq, self.file_ext)
+            self.check_path = '%s%s/' % (self.save_path, self.user)
 
-            elif self.subreddit_save_method == 'Subreddit Name':
-                self.filename = '%s%s/%s%s%s' % (self.save_path, self.subreddit,
-                                                 self.clean_filename(self.submission_id), self.number_in_seq,
-                                                 self.file_ext)
-                self.check_path = '%s%s' % (self.save_path, self.subreddit)
+        elif self.subreddit_save_method == 'Subreddit Name':
+            self.filename = '%s%s/%s%s%s' % (self.save_path, self.subreddit,
+                                             self.clean_filename(self.submission_id), self.number_in_seq,
+                                             self.file_ext)
+            self.check_path = '%s%s' % (self.save_path, self.subreddit)
 
-            elif self.subreddit_save_method == 'Subreddit Name/User Name':
-                self.filename = '%s%s/%s/%s%s%s' % (self.save_path, self.subreddit, self.user,
-                                                    self.clean_filename(self.submission_id), self.number_in_seq,
-                                                    self.file_ext)
-                self.check_path = '%s%s/%s/' % (self.save_path, self.subreddit, self.user)
+        elif self.subreddit_save_method == 'Subreddit Name/User Name':
+            self.filename = '%s%s/%s/%s%s%s' % (self.save_path, self.subreddit, self.user,
+                                                self.clean_filename(self.submission_id), self.number_in_seq,
+                                                self.file_ext)
+            self.check_path = '%s%s/%s/' % (self.save_path, self.subreddit, self.user)
 
-            elif self.subreddit_save_method == 'User Name/Subreddit Name':
-                self.filename = '%s%s/%s/%s%s%s' % (self.save_path, self.user, self.subreddit,
-                                                    self.clean_filename(self.submission_id), self.number_in_seq,
-                                                    self.file_ext)
-                self.check_path = '%s%s/%s' % (self.save_path, self.user, self.subreddit)
-            else:
-                self.filename = '%s%s%s%s' % (self.save_path, self.clean_filename(self.submission_id),
-                                              self.number_in_seq, self.file_ext)
-                self.check_path = self.save_path
+        elif self.subreddit_save_method == 'User Name/Subreddit Name':
+            self.filename = '%s%s/%s/%s%s%s' % (self.save_path, self.user, self.subreddit,
+                                                self.clean_filename(self.submission_id), self.number_in_seq,
+                                                self.file_ext)
+            self.check_path = '%s%s/%s' % (self.save_path, self.user, self.subreddit)
+        else:
+            self.filename = '%s%s%s%s' % (self.save_path, self.clean_filename(self.submission_id),
+                                          self.number_in_seq, self.file_ext)
+            self.check_path = self.save_path
 
     def run(self):
         self.check_save_path_subreddit()
         try:
-            response = requests.get(self.url, stream=True)
-            if response.status_code == 200:
-                with open(self.filename, 'wb') as file:
-                    for chunk in response.iter_content(1024):
-                        file.write(chunk)
-                self.set_file_modified_date()
-                self.queue.put('Saved: %s' % self.filename)
-                self.downloaded = True
-                return None
-            else:
-                self.handle_unsuccessful_response(response.status_code)
+            if self.url is not None:
+                self.download_url()
+            if self.text is not None:
+                self.download_text()
+            self.set_file_modified_date()
+            self.queue.put('Saved: %s' % self.filename)
+            self.downloaded = True
+            return None
         except ConnectionError:
             self.handle_connection_error()
         except:
             self.handle_exception()
+
+    def download_url(self):
+        """
+        Downloads the data found at this content items url address and saves it as a file in the local file system.
+        """
+        response = requests.get(self.url, stream=True)
+        if response.status_code == 200:
+            with open(self.filename, 'wb') as file:
+                for chunk in response.iter_content(1024):
+                    file.write(chunk)
+        else:
+            self.handle_unsuccessful_response(response.status_code)
+
+    def download_text(self):
+        """Saves the text found in this content items text attribute as a file in the local file system."""
+        with open(self.filename, 'w') as file:
+            file.write(self.text)
 
     def handle_unsuccessful_response(self, status_code):
         """Handles logging and output in case of a failed response from the server."""

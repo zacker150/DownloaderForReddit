@@ -31,8 +31,9 @@ from ..Extractors.DirectExtractor import DirectExtractor
 from ..Extractors.SelfPostExtractor import SelfPostExtractor
 from ..Utils import Injector
 from ..Core import Const
-from ..Utils.RedditUtils import convert_praw_post
+from ..Utils.RedditUtils import convert_post
 from ..Utils import ExtractorUtils
+from ..RedditObjects.Url import Url
 
 
 class Extractor:
@@ -68,13 +69,34 @@ class Extractor:
             extractor = self.assign_extractor(post)(post, self.reddit_object)
             self.check_timeout(extractor)
             extractor.extract_content()
-            self.handle_content(extractor)
+            self.handle_content(extractor, post)
         except TypeError:
             self.handle_unsupported_domain(post)
         except ConnectionError:
             self.handle_connection_error(post)
         except:
             self.handle_unknown_error(post)
+
+    @staticmethod
+    def assign_extractor(post):
+        """
+        Selects and returns the extractor to be used based on the url of the supplied post.
+        :param post: The post that is to be extracted.
+        :type post: praw.Post
+        :return: The extractor that is to be used to extract content from the supplied post.
+        """
+        try:
+            if post.is_self:
+                return SelfPostExtractor  # check for self post first
+        except AttributeError:
+            pass
+        for extractor in BaseExtractor.__subclasses__():
+            key = extractor.get_url_key()
+            if key is not None and any(x in post.url.lower() for x in key):
+                return extractor
+        if post.url.lower().endswith(Const.ALL_EXT):
+            return DirectExtractor
+        return None
 
     @staticmethod
     def check_timeout(extractor):
@@ -94,14 +116,14 @@ class Extractor:
             pass
 
     def handle_unsupported_domain(self, post):
-        post = convert_praw_post(post)
+        post = convert_post(post, self.reddit_object)
         post.status = 'Failed to extract post: Url domain not supported'
         self.reddit_object.failed_extracts.append(post)
         self.logger.error('Failed to find extractor for domain',
                           extra={'url': post.url, 'reddit_object': self.reddit_object.json}, exc_info=True)
 
     def handle_connection_error(self, post):
-        post = convert_praw_post(post)
+        post = convert_post(post, self.reddit_object)
         post.status = 'Failed to establish a connection to domain'
         post.save_status = 'Saved' if self.settings_manager.save_failed_extracts else 'Not Saved'
         self.reddit_object.failed_extracts.append(post)
@@ -109,7 +131,7 @@ class Extractor:
                           extra={'url': post.url, 'reddit_object': self.reddit_object.json}, exc_info=True)
 
     def handle_unknown_error(self, post):
-        post = convert_praw_post(post)
+        post = convert_post(post, self.reddit_object)
         post.status = 'Failed to extract content from post'
         self.reddit_object.failed_extracts.append(post)
         self.logger.error('Failed to extract content: Unknown error',
@@ -128,33 +150,13 @@ class Extractor:
         """
         return post.subreddit if self.reddit_object.object_type != 'SUBREDDIT' else self.reddit_object.name
 
-    @staticmethod
-    def assign_extractor(post):
-        """
-        Selects and returns the extractor to be used based on the url of the supplied post.
-        :param post: The post that is to be extracted.
-        :type post: praw.Post
-        :return: The extractor that is to be used to extract content from the supplied post.
-        :rtype: BaseExtractor
-        """
-        try:
-            if post.is_self:
-                return SelfPostExtractor  # check for self post first
-        except AttributeError:
-            pass
-        for extractor in BaseExtractor.__subclasses__():
-            key = extractor.get_url_key()
-            if key is not None and any(x in post.url.lower() for x in key):
-                return extractor
-        if post.url.lower().endswith(Const.ALL_EXT):
-            return DirectExtractor
-        return None
-
-    def handle_content(self, extractor):
+    def handle_content(self, extractor, post):
         """
         Takes the appropriate action for content that was extracted or failed to extract.
         :param extractor: The extractor that contains the extracted content.
+        :param post: The praw.Post object that the supplied extractor is currently working on.
         :type extractor: BaseExtractor
+        :type post: praw.Post
         """
         self.save_submissions(extractor)
         for x in extractor.failed_extract_posts:
@@ -165,7 +167,9 @@ class Extractor:
             else:
                 if self.filter_content(content):
                     self.reddit_object.content.append(content)
-                    self.reddit_object.previous_downloads.append(content.url)
+                    self.reddit_object.new_posts.append(convert_post(post, self.reddit_object))
+                    url = Url(url=content.url)
+                    self.reddit_object.previous_downloads.append(url)
 
     def save_submissions(self, extractor):
         """

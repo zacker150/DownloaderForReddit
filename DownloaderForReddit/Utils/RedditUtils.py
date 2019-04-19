@@ -42,16 +42,48 @@ def get_reddit_instance():
     return reddit_instance
 
 
-def convert_praw_post(praw_post):
+def convert_praw_posts(praw_post_list, reddit_object):
     """
-    A utility function that converts a praw submission object into a Post object which can be marshaled.  The method
-    first checks to make sure that the supplied post is an instance of a praw submission object.
+    Converts the list of praw post objects (raw praw Post objects as extracted directly from reddit using praw) to Post
+    model objects that can be stored to the application database.
+    :param praw_post_list: A list of praw.Post objects.
+    :param reddit_object: The Reddit object that is associated with the supplied posts.  Either a User or a Subreddit.
+    :return: A list of Post model objects containing pertinent information from the original praw post object that can
+             be saved to the database.
     """
-    if isinstance(praw_post, praw.models.reddit.submission.Submission):
-        return Post(praw_post.url, praw_post.author.name, praw_post.title, praw_post.subreddit.display_name,
-                    praw_post.created, domain=praw_post.domain)
+    posts = [convert_post(x, reddit_object) for x in praw_post_list]
+    return posts
+
+
+def convert_post(praw_post, reddit_object):
+    """
+    Makes a Post model object out of the supplied praw post.  The post is converted here to a Post object to get the
+    important data from the praw post object and convert it into a post model that can be saved to the database at
+    a later point.  This post will also have variables that are used throughout the application and will have a
+    uniform structure.
+    :param praw_post: The praw.Post object as it was extracted from reddit.
+    :param reddit_object: The reddit object that the post is associated with.  Should be either User or Subreddit.
+    :return: A RedditObjects.Post object containing the pertinent information taken from the raw reddit post.
+    :type praw_post: praw.Post
+    :type reddit_object: RedditObject
+    :rtype: Post
+    """
+    if reddit_object.object_type == 'USER':
+        author_id = reddit_object.id
+        author = reddit_object.name
+        subreddit_id = None
+        subreddit = praw_post.subreddit
     else:
-        return praw_post
+        author_id = None
+        author = praw_post.author
+        subreddit_id = reddit_object.id
+        subreddit = reddit_object.name
+
+    post = Post(title=praw_post.title, author_id=author_id, author=author, subreddit_id=subreddit_id,
+                subreddit=subreddit, created=praw_post.created, url=praw_post.url, self_post=praw_post.is_self,
+                domain=praw_post.domain, score=praw_post.score, text=praw_post.selftext,
+                html_text=praw_post.selftext_html, nsfw=praw_post.over_18, reddit_id=praw_post.id)
+    return post
 
 
 class NameChecker(QObject):
