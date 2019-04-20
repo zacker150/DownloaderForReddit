@@ -37,8 +37,6 @@ class SettingsManager:
     def __init__(self):
         self.logger = logging.getLogger('DownloaderForReddit.%s' % __name__)
         self.settings = QSettings('SomeGuySoftware', 'RedditDownloader')
-        self.load_settings()
-        # TODO: move load settings to init and add documentation for each attribute
         if self.check_first_run():
             ObjectUpdater.check_settings_manager(self)
 
@@ -48,16 +46,7 @@ class SettingsManager:
             'Include Only NSFW': 'ONLY'
         }
 
-    def check_first_run(self):
-        cached_version = self.settings.value("cached_version", "v0.0.0", type=str)
-        if cached_version != __version__:
-            self.logger.info('First run of new version',
-                             extra={'new_version': __version__, 'old_version': cached_version})
-            return True
-        else:
-            return False
-
-    def load_settings(self):
+        # TODO: Add documentation for each attribute below
         # region Core Settings
         self.do_not_notify_update = self.settings.value("do_not_notify_update", "v0.0.0", type=str)
         self.last_update = self.settings.value('last_update', None, type=str)
@@ -88,9 +77,6 @@ class SettingsManager:
 
         self.nsfw_filter = self.settings.value('nsfw_filter', 'INCLUDE', type=str)
 
-        self.download_self_posts = self.settings.value('download_self_posts', False, type=bool)
-        self.download_comments = self.settings.value('download_comments', False, type=bool)
-
         self.download_reddit_hosted_videos = self.settings.value('download_reddit_hosted_videos', True, type=bool)
 
         self.save_subreddits_by = self.settings.value('save_subreddits_by', 'Subreddit Name', type=str)
@@ -104,6 +90,25 @@ class SettingsManager:
         self.set_file_modified_date = self.settings.value('set_file_modified_date', False, type=bool)
 
         self.perpetual_save = self.settings.value('perpetual_save', False, type=bool)
+
+        # region Post/Comment Settings
+        self.extract_self_posts = self.settings.value('extract_self_posts', False, type=bool)
+        self.download_self_posts = self.settings.value('download_self_posts', False, type=bool)
+        self.download_comments = self.settings.value('download_comments', False, type=bool)
+        self.place_post_comments_in_same_file = self.settings.value('place_post_comments_in_same_file', True, type=bool)
+        self.post_and_comment_save_format = self.settings.value('post_and_comment_save_format', 'json', type=str)
+        self.save_posts_to_db = self.settings.value('save_posts_to_db', True, type=bool)
+        self.save_comments_to_db = self.settings.value('save_comments_to_db', False, type=bool)
+
+        self.extract_links_from_text_posts = self.settings.value('extract_links_from_text_posts', False, type=bool)
+        self.extract_links_from_comments = self.settings.value('extract_links_from_comments', False, type=bool)
+
+        self.comment_limit = self.settings.value('comment_limit', 100, type=int)
+        self.comment_score_limit_operator = self.settings.value('comment_score_limit_operator', 'GREATER', type=str)
+        self.comment_score_limit = self.settings.value('comment_score_limit', 3000, type=int)
+        self.comment_sort_method = self.settings.value('comment_sort_method', 'BEST', type=str)
+        # endregion
+
         # endregion
 
         # region Display Settings
@@ -149,50 +154,22 @@ class SettingsManager:
             'reddit_object_settings_dialog_splitter_state', None)
         # endregion
 
-        # region UserFinder GUI
-        self.user_finder_GUI_geom = self.settings.value('user_finder_GUI_geometry', None)
-        self.user_finder_splitter_one_state = self.settings.value('user_finder_splitter_one_state', None)
-        self.user_finder_splitter_two_state = self.settings.value('user_finder_splitter_two_state', None)
-        self.user_finder_splitter_three_state = self.settings.value('user_finder_splitter_three_state', None)
-        self.user_finder_top_sort_method = self.settings.value('user_finder_top_sort_method', 'MONTH', type=str)
-        self.user_finder_show_users_reddit_page = self.settings.value('user_finder_show_users_reddit_page', False,
-                                                                      type=bool)
-        self.user_finder_filter_by_score = self.settings.value('user_finder_filter_by_score', False, type=bool)
-        self.user_finder_score_limit = self.settings.value('user_finder_score_limit', 3000, type=int)
-        self.user_finder_post_limit = self.settings.value('user_finder_post_limit', 5, type=int)
-
-        self.user_finder_subreddit_list = self.settings.value('user_finder_subreddit_list', ['filler'], type=str)
-        self.user_finder_user_blacklist = self.settings.value('user_finder_blacklist', ['filler'], type=str)
-
-        self.user_finder_user_list_sort_method = self.settings.value('user_finder_user_list_sort_method', 'NAME',
-                                                                     type=str)
-        self.user_finder_user_list_sort_order = self.settings.value('user_finder_user_list_sort_order', 'ASC', type=str)
-        self.user_finder_preview_size = self.settings.value('user_finder_preview_size', 110, type=int)
-        # endregion
-
-        # region UserFinderSettings
-        self.user_finder_sample_size = self.settings.value('user_finder_sample_size', 5, type=int)
-        self.user_finder_sample_type_method = self.settings.value('user_finder_sample_type_method', 'TOP',
-                                                                  type=str)
-        self.user_finder_run_with_main = self.settings.value('user_finder_run_with_main', False, type=bool)
-        self.user_finder_auto_add_found = self.settings.value('user_finder_auto_add_found', False, type=bool)
-        self.user_finder_auto_add_user_list = self.settings.value('user_finder_auto_add_user_list', None, type=str)
-
-        self.user_finder_auto_run_silent = self.settings.value('user_finder_auto_run_silent', False, type=bool)
-        self.user_finder_double_click_operation = self.settings.value('user_finder_double_click_operation', 'DIALOG',
-                                                                      type=str)
-        # endregion
-
-        # region UserFinderSettingsGUISettings
-        self.user_finder_settings_gui_geom = self.settings.value('user_finder_settings_gui_geom', None)
-        # endregion
-
         # region Misc Dialogs
         self.settings_dialog_geom = self.settings.value('settings_dialog_geom')
         self.failed_downloads_dialog_geom = self.settings.value("failed_downloads_dialog_geom")
-        self.failed_downloads_dialog_splitter_state = self.settings.value("failed_downloads_dialog_splitter_state", None)
+        self.failed_downloads_dialog_splitter_state = self.settings.value("failed_downloads_dialog_splitter_state",
+                                                                          None)
         self.update_dialog_geom = self.settings.value("update_dialog_geom")
         # endregion
+
+    def check_first_run(self):
+        cached_version = self.settings.value("cached_version", "v0.0.0", type=str)
+        if cached_version != __version__:
+            self.logger.info('First run of new version',
+                             extra={'new_version': __version__, 'old_version': cached_version})
+            return True
+        else:
+            return False
 
     def load_picked_objects(self):
         return ObjectStateHandler.load_pickled_state()
@@ -227,8 +204,6 @@ class SettingsManager:
         self.settings.setValue("download_images", self.download_images)
         self.settings.setValue("avoid_duplicates", self.avoid_duplicates)
         self.settings.setValue('nsfw_filter', self.nsfw_filter)
-        self.settings.setValue('download_self_posts', self.download_self_posts)
-        self.settings.setValue('download_comments', self.download_comments)
         self.settings.setValue('download_reddit_hosted_videos', self.download_reddit_hosted_videos)
         self.settings.setValue("save_subreddits_by", self.save_subreddits_by)
         self.settings.setValue("name_downloads_by", self.name_downloads_by)
@@ -238,6 +213,20 @@ class SettingsManager:
         self.settings.setValue('save_failed_extracts', self.save_failed_extracts)
         self.settings.setValue('set_file_modified_date', self.set_file_modified_date)
         self.settings.setValue('perpetual_save', self.perpetual_save)
+
+        self.settings.setValue('extract_self_posts', self.extract_self_posts)
+        self.settings.setValue('download_self_posts', self.download_self_posts)
+        self.settings.setValue('download_comments', self.download_comments)
+        self.settings.setValue('place_post_comments_in_same_file', self.place_post_comments_in_same_file)
+        self.settings.setValue('post_and_comment_save_format', self.post_and_comment_save_format)
+        self.settings.setValue('save_posts_to_db', self.save_posts_to_db)
+        self.settings.setValue('save_comments_to_db', self.save_comments_to_db)
+        self.settings.setValue('extract_links_from_text_posts', self.extract_links_from_text_posts)
+        self.settings.setValue('extract_links_from_comments', self.extract_links_from_comments)
+        self.settings.setValue('comment_limit', self.comment_limit)
+        self.settings.setValue('comment_score_limit_operator', self.comment_score_limit_operator)
+        self.settings.setValue('comment_score_limit', self.comment_score_limit)
+        self.settings.setValue('comment_sort_method', self.comment_sort_method)
 
     def save_display_settings(self):
         self.settings.setValue('tooltip_name', self.tooltip_display_dict['name'])
@@ -275,35 +264,6 @@ class SettingsManager:
         self.settings.setValue('reddit_object_content_icon_size', self.reddit_object_content_icon_size)
         self.settings.setValue('current_reddit_object_settings_item_display_list',
                                self.current_reddit_object_settings_item_display_list)
-
-    def save_user_finder(self):
-        self.settings.setValue('user_finder_show_users_reddit_page', self.user_finder_show_users_reddit_page)
-        self.settings.setValue('user_finder_sample_size', self.user_finder_sample_size)
-        self.settings.setValue('user_finder_sample_type_method', self.user_finder_sample_type_method)
-        self.settings.setValue('user_finder_run_with_main', self.user_finder_run_with_main)
-        self.settings.setValue('user_finder_auto_add_found', self.user_finder_auto_add_found)
-        self.settings.setValue('user_finder_auto_add_user_list', self.user_finder_auto_add_user_list)
-        self.settings.setValue('user_finder_auto_run_silent', self.user_finder_auto_run_silent)
-        self.settings.setValue('user_finder_preview_size', self.user_finder_preview_size)
-        self.settings.setValue('user_finder_double_click_operation', self.user_finder_double_click_operation)
-
-    def save_user_finder_dialog(self):
-        self.settings.setValue('user_finder_GUI_geometry', self.user_finder_GUI_geom)
-        self.settings.setValue('user_finder_splitter_one_state', self.user_finder_splitter_one_state)
-        self.settings.setValue('user_finder_splitter_two_state', self.user_finder_splitter_two_state)
-        self.settings.setValue('user_finder_splitter_three_state', self.user_finder_splitter_three_state)
-        self.settings.setValue('user_finder_top_sort_method', self.user_finder_top_sort_method)
-        self.settings.setValue('user_finder_filter_by_score', self.user_finder_filter_by_score)
-        self.settings.setValue('user_finder_score_limit', self.user_finder_score_limit)
-        self.settings.setValue('user_finder_post_limit', self.user_finder_post_limit)
-        self.settings.setValue('user_finder_subreddit_list', self.user_finder_subreddit_list)
-        self.settings.setValue('user_finder_blacklist', self.user_finder_user_blacklist)
-        self.settings.setValue('user_finder_preview_size', self.user_finder_preview_size)
-        self.settings.setValue('user_finder_user_list_sort_method', self.user_finder_user_list_sort_method)
-        self.settings.setValue('user_finder_user_list_sort_order', self.user_finder_user_list_sort_order)
-
-    def save_user_finder_settings_dialog(self):
-        self.settings.setValue('user_finder_settings_gui_geom', self.user_finder_settings_gui_geom)
 
     def save_settings_dialog(self):
         self.settings.setValue('settings_dialog_geom', self.settings_dialog_geom)
