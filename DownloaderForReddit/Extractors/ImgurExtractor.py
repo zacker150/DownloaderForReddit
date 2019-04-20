@@ -185,7 +185,7 @@ class ImgurExtractor(BaseExtractor):
                 if picture.animated:
                     url = picture.mp4
                     extension = 'mp4'
-            self.make_content(url, file_name, extension)
+            self.make_content(url, None, file_name, extension)
         except (AttributeError, NameError):
             message = 'Unrecognized extension'
             self.handle_failed_extract(message=message, extractor_error_message=message)
