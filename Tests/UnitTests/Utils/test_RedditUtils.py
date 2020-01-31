@@ -33,6 +33,9 @@ class TestRedditUtils(TestCase):
         self.assertEqual(self.created, post.created)
         self.assertEqual(self.domain, post.domain)
 
+    def test_self_fail(self):
+        self.assertEqual(1,2)
+
     def test_convert_praw_post_invalid_praw_post(self):
         praw_post = TestObject()
 
