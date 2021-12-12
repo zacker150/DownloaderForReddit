@@ -1,6 +1,9 @@
 from setuptools import setup
 from DownloaderForReddit.version import __version__
 
+with open("requirements.txt") as requirements_file:
+    requirements = requirements_file.readlines()
+
 setup(
     # Metadata
     name='DownloaderForReddit',
@@ -35,6 +38,7 @@ setup(
         'DownloaderForReddit.utils.importers',
         'DownloaderForReddit.viewmodels',
     ],
+    install_requires=requirements,
 
     entry_points={
         'console_scripts': [
