@@ -1,5 +1,9 @@
 # Change Log
 
+## v3.13.0-beta
+
+### Minor Changes
+* Build against Python 3.8 instead of 3.7
 
 ## v3.12.0-beta
 
