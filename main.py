@@ -67,6 +67,9 @@ def main():
 
     check_migration()
 
+    QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True)  # enable highdpi scaling
+    # QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps, True)  # use highdpi icons
+
     app = QtWidgets.QApplication(sys.argv)
 
     queue = injector.get_message_queue()
